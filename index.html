@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Հայաստանի Մակերևույթը | Ինտերակտիվ Աշխարհագրություն</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Armenian:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brown-900:#2b1b12;
+    --brown-800:#3f2a1a;
+    --brown-700:#5a3b22;
+    --orange-600:#c0622c;
+    --orange-500:#e07a35;
+    --orange-400:#f2a65a;
+    --cream:#fdf4e7;
+    --green-600:#4c7a4a;
+    --blue-500:#3d7ea6;
+    --card-bg:#fffaf2;
+    --shadow: 0 10px 30px rgba(43,27,18,0.15);
+    --radius: 18px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Noto Sans Armenian', 'Segoe UI', sans-serif;
+    background:var(--cream);
+    color:var(--brown-900);
+    overflow-x:hidden;
+    line-height:1.7;
+  }
+  h1,h2,h3,h4{font-weight:800; color:var(--brown-800);}
+  a{text-decoration:none; color:inherit;}
+  ul{list-style:none;}
+  img{max-width:100%; display:block;}
+
+  /* ---------- scroll progress ---------- */
+  #progress-bar{
+    position:fixed; top:0; left:0; height:4px; width:0%;
+    background:linear-gradient(90deg,var(--orange-600),var(--green-600));
+    z-index:9999; transition:width .1s;
+  }
+
+  /* ---------- header ---------- */
+  header{
+    position:fixed; top:0; width:100%; z-index:1000;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 6%;
+    background:rgba(253,244,231,0.85);
+    backdrop-filter:blur(10px);
+    box-shadow:0 2px 12px rgba(0,0,0,0.06);
+    transition:all .3s ease;
+  }
+  header.scrolled{padding:8px 6%;}
+  .logo{
+    font-size:1.3rem; font-weight:800; color:var(--orange-600);
+    display:flex; align-items:center; gap:8px;
+  }
+  .logo span{color:var(--brown-800);}
+  nav ul{display:flex; gap:28px;}
+  nav a{
+    font-weight:600; font-size:0.95rem; color:var(--brown-800);
+    position:relative; padding-bottom:4px;
+  }
+  nav a::after{
+    content:''; position:absolute; bottom:0; left:0; width:0; height:2px;
+    background:var(--orange-600); transition:width .3s;
+  }
+  nav a:hover::after{width:100%;}
+  .burger{display:none; flex-direction:column; gap:5px; cursor:pointer;}
+  .burger div{width:26px; height:3px; background:var(--brown-800); border-radius:3px;}
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative; height:100vh; min-height:600px;
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    overflow:hidden;
+    background:linear-gradient(180deg,#fcebd1 0%, #f7d9ad 40%, #eab876 100%);
+  }
+  .hero-content{position:relative; z-index:5; max-width:900px; padding:0 20px;}
+  .hero-content .tag{
+    display:inline-block; padding:6px 18px; border-radius:30px;
+    background:rgba(255,255,255,0.5); border:1px solid var(--orange-600);
+    font-weight:600; color:var(--orange-600); margin-bottom:20px;
+    animation:fadeDown 1s ease both;
+  }
+  .hero h1{
+    font-size:clamp(2.2rem,6vw,4.2rem); line-height:1.15;
+    background:linear-gradient(90deg,#7a3e1a,#c0622c,#7a3e1a);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation:fadeUp 1s ease .2s both;
+  }
+  .hero p.sub{
+    font-size:clamp(1rem,2vw,1.3rem); margin-top:18px; color:var(--brown-700);
+    animation:fadeUp 1s ease .4s both;
+  }
+  .hero-btns{margin-top:36px; display:flex; gap:16px; justify-content:center; flex-wrap:wrap;
+    animation:fadeUp 1s ease .6s both;}
+  .btn{
+    padding:14px 30px; border-radius:40px; font-weight:700; cursor:pointer;
+    border:none; font-size:1rem; transition:transform .3s, box-shadow .3s;
+  }
+  .btn-primary{background:var(--orange-600); color:#fff; box-shadow:0 8px 20px rgba(192,98,44,0.4);}
+  .btn-outline{background:transparent; border:2px solid var(--brown-800); color:var(--brown-800);}
+  .btn:hover{transform:translateY(-4px) scale(1.03);}
+
+  .mountains{position:absolute; bottom:0; left:0; width:100%; z-index:1;}
+  .mountains svg{width:100%; display:block;}
+  .layer1{z-index:1; opacity:.5;}
+  .layer2{z-index:2; opacity:.75;}
+  .layer3{z-index:3;}
+
+  .sun{
+    position:absolute; top:12%; left:50%; transform:translateX(-50%);
+    width:120px; height:120px; border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, #fff6dd, #f2a65a 70%);
+    box-shadow:0 0 80px 30px rgba(242,166,90,0.5);
+    animation:pulse 4s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{transform:translateX(-50%) scale(1);}50%{transform:translateX(-50%) scale(1.08);}}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(30px);} to{opacity:1; transform:translateY(0);}}
+  @keyframes fadeDown{from{opacity:0; transform:translateY(-20px);} to{opacity:1; transform:translateY(0);}}
+
+  .scroll-down{
+    position:absolute; bottom:30px; left:50%; transform:translateX(-50%);
+    z-index:6; color:var(--brown-800); font-size:1.8rem;
+    animation:bounce 2s infinite;
+  }
+  @keyframes bounce{0%,100%{transform:translate(-50%,0);}50%{transform:translate(-50%,12px);}}
+
+  /* ---------- sections generic ---------- */
+  section{padding:100px 6%;}
+  .section-title{text-align:center; margin-bottom:50px;}
+  .section-title .eyebrow{
+    color:var(--orange-600); font-weight:700; letter-spacing:1px; text-transform:uppercase; font-size:.85rem;
+  }
+  .section-title h2{font-size:clamp(1.8rem,4vw,2.6rem); margin-top:8px;}
+  .section-title p{max-width:700px; margin:14px auto 0; color:var(--brown-700);}
+
+  .reveal{opacity:0; transform:translateY(40px); transition:all .8s cubic-bezier(.2,.8,.2,1);}
+  .reveal.show{opacity:1; transform:translateY(0);}
+
+  /* ---------- stats ---------- */
+  .stats{
+    background:var(--brown-800); color:#fff;
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:30px;
+    padding:70px 6%;
+  }
+  .stat-card{text-align:center; padding:20px; border-right:1px solid rgba(255,255,255,0.1);}
+  .stat-card:last-child{border-right:none;}
+  .stat-card h3{
+    font-size:2.6rem; color:var(--orange-400); margin-bottom:8px;
+  }
+  .stat-card p{color:#e8d9c5; font-size:.95rem;}
+
+  /* ---------- overview ---------- */
+  .overview-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:50px; align-items:center;
+  }
+  .overview-text p{margin-bottom:16px; color:var(--brown-800);}
+  .overview-text b{color:var(--orange-600);}
+  .list-box{list-style:none; margin-top:20px;}
+  .list-box li{
+    display:flex; gap:12px; align-items:flex-start; margin-bottom:12px;
+    background:var(--card-bg); padding:14px 18px; border-radius:12px; box-shadow:var(--shadow);
+  }
+  .list-box li span.num{
+    background:var(--orange-600); color:#fff; min-width:28px; height:28px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem;
+  }
+  .overview-visual{
+    position:relative; height:380px; border-radius:24px; overflow:hidden;
+    background:linear-gradient(160deg,#f7d9ad,#c0622c);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .overview-visual .peak{
+    position:absolute; bottom:0; animation:float 6s ease-in-out infinite;
+  }
+  @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-14px);}}
+
+  /* ---------- map section ---------- */
+  .map-section{background:linear-gradient(180deg,#fff,#fbeedb);}
+  .map-wrap{
+    display:grid; grid-template-columns:320px 1fr; gap:40px; align-items:start;
+  }
+  .legend-box{
+    background:var(--card-bg); border-radius:var(--radius); padding:26px; box-shadow:var(--shadow);
+  }
+  .legend-box h4{margin-bottom:14px; color:var(--brown-800);}
+  .legend-item{
+    display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px;
+    cursor:pointer; margin-bottom:6px; transition:background .25s, transform .25s;
+  }
+  .legend-item:hover, .legend-item.active{background:#f7e7cf; transform:translateX(-4px);}
+  .legend-color{width:22px; height:22px; border-radius:6px; flex-shrink:0;}
+  .legend-item b{display:block; font-size:.9rem;}
+  .legend-item small{color:var(--brown-700); font-size:.78rem;}
+
+  .map-container{
+    background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); padding:20px; position:relative;
+  }
+  .map-container svg{width:100%; height:auto;}
+  .region-path{transition:opacity .3s, transform .3s, filter .3s; cursor:pointer; transform-origin:center;}
+  .region-path:hover{opacity:0.85;}
+  .map-tooltip{
+    position:absolute; background:var(--brown-900); color:#fff; padding:10px 14px; border-radius:10px;
+    font-size:.85rem; pointer-events:none; opacity:0; transition:opacity .2s; z-index:50; max-width:220px;
+  }
+  .pulse-dot{animation:pulseDot 2s infinite;}
+  @keyframes pulseDot{0%{r:5;}50%{r:8;}100%{r:5;}}
+  .peak-marker{animation:floaty 3s ease-in-out infinite;}
+  @keyframes floaty{0%,100%{transform:translateY(0px);}50%{transform:translateY(-4px);}}
+
+  /* ---------- regions tabs ---------- */
+  .tabs-nav{display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-bottom:40px;}
+  .tab-btn{
+    padding:12px 22px; border-radius:30px; background:var(--card-bg); box-shadow:var(--shadow);
+    font-weight:700; cursor:pointer; border:2px solid transparent; transition:all .3s;
+  }
+  .tab-btn.active{background:var(--orange-600); color:#fff; border-color:var(--orange-600);}
+  .tab-panel{display:none; animation:fadeUp .6s ease;}
+  .tab-panel.active{display:block;}
+  .region-card{
+    background:var(--card-bg); border-radius:var(--radius); box-shadow:var(--shadow); padding:36px;
+    display:grid; grid-template-columns:1fr; gap:24px;
+  }
+  .region-card h3{color:var(--orange-600); margin-bottom:10px; font-size:1.5rem;}
+  .region-card p{margin-bottom:14px; color:var(--brown-800);}
+  .peak-tags{display:flex; flex-wrap:wrap; gap:10px; margin-top:16px;}
+  .peak-tag{
+    background:var(--brown-800); color:#fff; padding:8px 16px; border-radius:20px; font-size:.85rem;
+    display:flex; gap:8px; align-items:center;
+  }
+  .peak-tag b{color:var(--orange-400);}
+
+  /* ---------- facts flip cards ---------- */
+  .facts-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:30px;}
+  .flip-card{perspective:1200px; height:320px;}
+  .flip-inner{
+    position:relative; width:100%; height:100%; transition:transform .8s; transform-style:preserve-3d;
+    box-shadow:var(--shadow); border-radius:var(--radius);
+  }
+  .flip-card:hover .flip-inner{transform:rotateY(180deg);}
+  .flip-front, .flip-back{
+    position:absolute; width:100%; height:100%; backface-visibility:hidden; border-radius:var(--radius);
+    padding:30px; display:flex; flex-direction:column; justify-content:center;
+  }
+  .flip-front{background:linear-gradient(160deg,var(--orange-500),var(--orange-600)); color:#fff;}
+  .flip-back{background:var(--card-bg); transform:rotateY(180deg); overflow-y:auto; color:var(--brown-800); font-size:.92rem;}
+  .flip-front h3{color:#fff; font-size:1.4rem;}
+  .flip-front p{opacity:.9; margin-top:10px;}
+  .flip-icon{font-size:2.6rem; margin-bottom:14px;}
+
+  /* ---------- tasks ---------- */
+  .task-list{max-width:800px; margin:0 auto; display:flex; flex-direction:column; gap:16px;}
+  .task-item{
+    display:flex; gap:16px; align-items:flex-start; background:var(--card-bg); padding:20px 24px;
+    border-radius:16px; box-shadow:var(--shadow); cursor:pointer; transition:all .3s;
+  }
+  .task-item.done{opacity:.6;}
+  .task-item.done p{text-decoration:line-through;}
+  .checkbox{
+    min-width:26px; height:26px; border-radius:50%; border:2px solid var(--orange-600);
+    display:flex; align-items:center; justify-content:center; transition:all .3s;
+  }
+  .task-item.done .checkbox{background:var(--green-600); border-color:var(--green-600);}
+  .checkbox::after{content:''; color:#fff; font-weight:bold;}
+  .task-item.done .checkbox::after{content:'✓';}
+
+  /* ---------- appendix accordion ---------- */
+  .accordion{max-width:900px; margin:0 auto;}
+  .acc-item{background:var(--card-bg); border-radius:14px; margin-bottom:14px; box-shadow:var(--shadow); overflow:hidden;}
+  .acc-head{
+    padding:20px 26px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; font-weight:700;
+  }
+  .acc-head .plus{transition:transform .3s; color:var(--orange-600); font-size:1.4rem;}
+  .acc-item.open .plus{transform:rotate(45deg);}
+  .acc-body{max-height:0; overflow:hidden; transition:max-height .5s ease; padding:0 26px;}
+  .acc-item.open .acc-body{max-height:1200px; padding:0 26px 26px;}
+  .acc-body p{margin-bottom:12px; color:var(--brown-700); font-size:.95rem;}
+
+  /* ---------- footer ---------- */
+  footer{
+    background:var(--brown-900); color:#e8d9c5; text-align:center; padding:50px 6% 30px;
+  }
+  footer h3{color:#fff; margin-bottom:10px;}
+  footer p{font-size:.85rem; opacity:.7; margin-top:20px;}
+
+  /* ---------- back to top ---------- */
+  #toTop{
+    position:fixed; bottom:30px; right:30px; width:50px; height:50px; border-radius:50%;
+    background:var(--orange-600); color:#fff; display:flex; align-items:center; justify-content:center;
+    font-size:1.3rem; cursor:pointer; opacity:0; pointer-events:none; transition:all .3s; z-index:999;
+    box-shadow:0 8px 20px rgba(0,0,0,0.25);
+  }
+  #toTop.show{opacity:1; pointer-events:auto;}
+
+  @media(max-width:900px){
+    nav{display:none;}
+    .burger{display:flex;}
+    .overview-grid{grid-template-columns:1fr;}
+    .map-wrap{grid-template-columns:1fr;}
+  }
+
+  @media(max-width:900px){
+    nav.mobile-open{
+      display:block; position:fixed; top:64px; left:0; width:100%;
+      background:var(--cream); padding:20px 6% 26px; box-shadow:0 10px 20px rgba(0,0,0,0.12);
+    }
+    nav.mobile-open ul{flex-direction:column; gap:18px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<!-- HEADER -->
+<header id="header">
+  <div class="logo">🏔️ <span>Հայաստանի</span> Աշխարհագրություն</div>
+  <nav>
+    <ul>
+      <li><a href="#hero">Գլխավոր</a></li>
+      <li><a href="#overview">Մակերևույթը</a></li>
+      <li><a href="#map">Քարտեզ</a></li>
+      <li><a href="#regions">Լեռնագրական մարզեր</a></li>
+      <li><a href="#facts">Հետաքրքիր փաստեր</a></li>
+      <li><a href="#tasks">Առաջադրանքներ</a></li>
+    </ul>
+  </nav>
+  <div class="burger" onclick="document.querySelector('nav').classList.toggle('mobile-open')"><div></div><div></div><div></div></div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="sun"></div>
+  <div class="mountains layer1">
+    <svg viewBox="0 0 1440 300" preserveAspectRatio="none"><path fill="#b97a3f" d="M0,200 L120,120 L240,190 L380,90 L520,180 L660,100 L800,190 L950,110 L1100,200 L1250,130 L1440,210 L1440,300 L0,300 Z"/></svg>
+  </div>
+  <div class="mountains layer2">
+    <svg viewBox="0 0 1440 260" preserveAspectRatio="none"><path fill="#8a5a2e" d="M0,180 L160,80 L300,160 L460,60 L620,170 L780,90 L950,180 L1120,100 L1280,190 L1440,120 L1440,260 L0,260 Z"/></svg>
+  </div>
+  <div class="mountains layer3">
+    <svg viewBox="0 0 1440 220" preserveAspectRatio="none"><path fill="#5a3b22" d="M0,160 L200,40 L340,140 L500,20 L680,150 L860,50 L1040,160 L1220,70 L1440,150 L1440,220 L0,220 Z"/></svg>
+  </div>
+  <div class="hero-content">
+    <span class="tag">§12 · Աշխարհագրություն · 9-րդ դասարան</span>
+    <h1>ՀԱՅԱՍՏԱՆԻ ՀԱՆՐԱՊԵՏՈՒԹՅԱՆ<br>ՄԱԿԵՐԵՎՈՒՅԹԸ</h1>
+    <p class="sub">Հայկական լեռնաշխարհի արևելյան մասում տարածվող լեռնային երկիր՝ չորս յուրօրինակ լեռնագրական մարզերով, հրաբխային սարավանդներով և Արարատյան դաշտով։</p>
+    <div class="hero-btns">
+      <button class="btn btn-primary" onclick="document.getElementById('map').scrollIntoView({behavior:'smooth'})">🗺️ Դիտել քարտեզը</button>
+      <button class="btn btn-outline" onclick="document.getElementById('regions').scrollIntoView({behavior:'smooth'})">Ուսումնասիրել մարզերը</button>
+    </div>
+  </div>
+  <div class="scroll-down">⌄</div>
+</section>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="stat-card reveal">
+    <h3 data-count="4090">0</h3>
+    <p>ՀՀ ամենաբարձր կետը՝ Արագածի գագաթը (մ)</p>
+  </div>
+  <div class="stat-card reveal">
+    <h3 data-count="375">0</h3>
+    <p>ՀՀ ամենացածր կետը՝ Դեբեդ գետի հովիտ (մ)</p>
+  </div>
+  <div class="stat-card reveal">
+    <h3 data-count="1800">0</h3>
+    <p>Տարածքի միջին բարձրությունը ծովի մակարդակից (մ)</p>
+  </div>
+  <div class="stat-card reveal">
+    <h3 data-count="47">0</h3>
+    <p>Տարածքի այն մասը (%), որ զբաղեցնում են լեռնաշղթաները</p>
+  </div>
+</section>
+
+<!-- OVERVIEW -->
+<section id="overview">
+  <div class="section-title reveal">
+    <span class="eyebrow">§12. Մակերևույթը</span>
+    <h2>Ընդհանուր բնութագիր</h2>
+    <p>Հայաստանի Հանրապետությունը, տարածվելով Հայկական լեռնաշխարհի արևելյան մասում, առանձնանում է հարևան տարածքների նկատմամբ ավելի բարձր դիրքով։</p>
+  </div>
+
+  <div class="overview-grid">
+    <div class="overview-text reveal">
+      <p>Տարածքի միջին բարձրությունը ծովի մակարդակից <b>1800 մ</b>-ից ավելի է։ Սակայն դա միջինացված ցուցանիշ է, որ չի բացահայտում իրական պատկերը. ՀՀ-ում բացակայում են հարթավայրերը (Քարտեզ 5)։</p>
+      <p>Հանրապետության տարածքի ամենացածր կետը գտնվում է Ծագքի հյուսիսում՝ Դեբետ գետի ստորին հոսանքի շրջանում (<b>375 մ</b>)։ ՀՀ ամենաբարձր կետն Արագածի լեռնագագաթն է (<b>4090 մ</b>)։ Այսպիսով՝ հանրապետության տարածքի առավելագույն և նվազագույն բացարձակ բարձրությունների տարբերությունն անցնում է <b>3700 մ</b>-ից։</p>
+      <p>Հայաստանի Հանրապետությունը լեռնային երկիր է։ Տարածքի շուրջ <b>3/4-ը</b> գտնվում է ծովի մակերևույթից 1000–2500 մ բարձրության վրա։ Լեռնաշղթաները զբաղեցնում են շուրջ 14 հազ. կմ² տարածք (շուրջ <b>47%-ը</b>)։ ՀՀ տարածքի <b>1/3-ը</b> զբաղեցնում են բարձրավանդակներն ու սարավանդները։</p>
+      <p>ՀՀ-ում մարդու տնտեսական գործունեության համար նպաստավոր են մինչև 2500 մ բարձրության տարածքները։ Առավել բարենպաստ պայմաններ կան ծովի մակարդակից մինչև 1000 մ բարձրության տարածքներում, որոնք կազմում են հանրապետության ընդհանուր մակերեսի ոչ ավելի, քան <b>10%-ը</b>։</p>
+      <p>Մեր հանրապետության բազմազան մակերևույթ ունեցող տարածքը գիտնականները բաժանում են չորս լեռնագրական մարզի՝</p>
+      <ul class="list-box">
+        <li><span class="num">1</span> Հյուսիսային ծալքաբեկորավոր լեռնաշղթաների և միջլեռնային գոգավորությունների մարզ</li>
+        <li><span class="num">2</span> Հրաբխային լեռնավահանների և սարավանդների մարզ</li>
+        <li><span class="num">3</span> Հարավային ծալքաբեկորավոր լեռնաշղթաների և միջլեռնային գոգավորությունների մարզ</li>
+        <li><span class="num">4</span> Միջինարաքսյան գոգավորության մարզ</li>
+      </ul>
+    </div>
+    <div class="overview-visual reveal">
+      <svg class="peak" viewBox="0 0 400 320" width="100%">
+        <polygon points="200,20 330,280 70,280" fill="#7a4a24"/>
+        <polygon points="200,20 260,160 140,160" fill="#fff" opacity="0.9"/>
+        <polygon points="200,60 230,160 170,160" fill="#fdf4e7"/>
+        <circle cx="330" cy="60" r="34" fill="#f2a65a" opacity="0.8"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- MAP -->
+<section id="map" class="map-section">
+  <div class="section-title reveal">
+    <span class="eyebrow">Քարտեզ 5</span>
+    <h2>Հայաստանի Հանրապետության Լեռնագրությունը</h2>
+    <p>Սեղմեք լեգենդի տարրերից որևէ մեկին՝ քարտեզի վրա համապատասխան մարզը նշելու համար։</p>
+  </div>
+  <div class="map-wrap reveal">
+    <div class="legend-box">
+      <h4>🗺️ Լեռնագրական մարզեր</h4>
+      <div class="legend-item" data-region="I" onclick="selectRegion('I')">
+        <div class="legend-color" style="background:#6fa15e"></div>
+        <div>
+          <b>I. Հյուսիսային մարզ</b>
+          <small>Ծալքաբեկորավոր լեռնաշղթաներ և միջլեռնային գոգավորություններ</small>
+          <small style="display:block;margin-top:4px;opacity:.8;">Ա — Արտաքին շարք &nbsp;·&nbsp; Բ — Ներքին շարք</small>
+        </div>
+      </div>
+      <div class="legend-item" data-region="II" onclick="selectRegion('II')">
+        <div class="legend-color" style="background:#c0622c"></div>
+        <div>
+          <b>II. Հրաբխային մարզ</b>
+          <small>Լեռնավահաններ և սարավանդներ (Արագած, Գեղամա, Վարդենիս, Սյունիք)</small>
+          <small style="display:block;margin-top:4px;opacity:.8;">Ա — Արագած-Գեղամա &nbsp;·&nbsp; Բ — Արագած-Սյունիք</small>
+        </div>
+      </div>
+      <div class="legend-item" data-region="III" onclick="selectRegion('III')">
+        <div class="legend-color" style="background:#8a5a2e"></div>
+        <div>
+          <b>III. Հարավային մարզ</b>
+          <small>Որոթի, Վայքի և Զանգեզուրի լեռնաշղթաներ</small>
+          <small style="display:block;margin-top:4px;opacity:.8;">Ա — Որոտի-Վայքի &nbsp;·&nbsp; Բ — Զանգեզուրի</small>
+        </div>
+      </div>
+      <div class="legend-item" data-region="IV" onclick="selectRegion('IV')">
+        <div class="legend-color" style="background:#e3c27a"></div>
+        <div><b>IV. Միջինարաքսյան գոգավորություն</b><small>Արարատյան դաշտ</small></div>
+      </div>
+      <hr style="margin:16px 0; border-color:#eee;">
+      <div style="font-size:.8rem; color:var(--brown-700); line-height:1.9;">
+        🔴 պետական սահման &nbsp;|&nbsp; ⭐ Երևան — մայրաքաղաք<br>
+        💧 Սևանա լիճ &nbsp;|&nbsp; ▲ լեռնագագաթ<br>
+        Մասշտաբ 1։2 000 000
+      </div>
+    </div>
+
+<div class="map-container" style="text-align: center; overflow: hidden; padding: 12px;">
+      <img 
+        src="map-w944.jpg" 
+
+        alt="Քարտեզ 5 - Հայաստանի Հանրապետության Լեռնագրությունը" 
+        style="width: 100%; height: auto; border-radius: 12px; display: block; object-fit: contain;"
+      />
+    </div>
+
+        <!-- REGION I — Northern -->
+        <path id="region-I" class="region-path" fill="#6fa15e" fill-opacity="0.85"
+          d="M104,34 L131,18 L189,14 L252,27 L306,50 L351,63 L396,54 L432,90 L450,126 L459,180 L420,175 L360,190 L280,200 L200,185 L120,150 L72,126 L81,81 Z"
+          onclick="selectRegion('I')"/>
+
+        <!-- REGION II — Volcanic plateaus (large, underlies IV & III) -->
+        <path id="region-II" class="region-path" fill="#c0622c" fill-opacity="0.85"
+          d="M459,180 L450,216 L468,243 L504,270 L531,306 L540,351 L549,396 L558,432 L545,468 L549,504 L531,540 L513,576 L486,608 L450,594 L423,567 L414,531 L387,495 L369,459 L342,423 L315,387 L279,360 L234,351 L189,356 L144,342 L99,333 L72,306 L54,261 L45,216 L54,171 L72,126 L120,150 L200,185 L280,200 L360,190 L420,175 Z"
+          onclick="selectRegion('II')"/>
+
+        <!-- REGION IV — Ararat valley pocket (drawn above II) -->
+        <path id="region-IV" class="region-path" fill="#e3c27a" fill-opacity="0.95"
+          d="M160,300 L260,295 L300,320 L290,370 L230,390 L170,375 L130,340 Z"
+          onclick="selectRegion('IV')"/>
+
+        <!-- REGION III — Southern strip + Zangezur/Meghri tail (drawn above II) -->
+        <path id="region-III" class="region-path" fill="#8a5a2e" fill-opacity="0.85"
+          d="M330,350 L420,340 L470,370 L520,400 L549,396 L558,432 L545,468 L549,504 L531,540 L513,576 L486,608 L450,594 L423,567 L414,531 L387,495 L369,459 L342,423 L315,387 L300,370 Z"
+          onclick="selectRegion('III')"/>
+
+        <!-- Province name labels -->
+        <g fill="var(--brown-900)" font-size="9" font-weight="600" opacity="0.75" style="pointer-events:none;">
+          <text x="100" y="105">Շիրակ</text>
+          <text x="250" y="80">Լոռի</text>
+          <text x="385" y="80">Տավուշ</text>
+          <text x="165" y="245">Արագածոտն</text>
+          <text x="305" y="270">Կոտայք</text>
+          <text x="440" y="200">Գեղարքունիք</text>
+          <text x="95" y="320">Արմավիր</text>
+          <text x="245" y="355">Արարատ</text>
+          <text x="335" y="385">Վայոց Ձոր</text>
+          <text x="455" y="470">Սյունիք</text>
+        </g>
+
+        <!-- Region numeral labels (appear more than once, as on the real map) -->
+        <g font-weight="800" style="pointer-events:none;" opacity="0.9">
+          <text x="150" y="58" fill="#fff" font-size="15">I</text>
+          <text x="265" y="235" fill="#fff" font-size="15">II</text>
+          <text x="478" y="432" fill="#fff" font-size="15">II</text>
+          <text x="345" y="395" fill="#fff" font-size="15">III</text>
+          <text x="470" y="540" fill="#fff" font-size="15">III</text>
+          <text x="208" y="335" fill="var(--brown-900)" font-size="15">IV</text>
+        </g>
+
+        <!-- Lake Sevan -->
+        <ellipse cx="383" cy="243" rx="38" ry="78" fill="#3d7ea6" opacity="0.88" transform="rotate(25 383 243)"/>
+        <text x="383" y="247" fill="#fff" font-size="10" text-anchor="middle" style="pointer-events:none;">Սևան</text>
+
+        <!-- Yerevan -->
+        <circle class="pulse-dot" cx="203" cy="311" r="5" fill="#fff" stroke="#c0622c" stroke-width="2"/>
+        <text x="215" y="307" fill="var(--brown-900)" font-size="12" font-weight="700">ԵՐԵՎԱՆ</text>
+
+        <!-- Peak markers -->
+        <g class="peak-marker">
+          <polygon points="190,205 200,228 180,228" fill="#fff" stroke="#7a4a24"/>
+          <text x="190" y="242" font-size="9" text-anchor="middle" fill="var(--brown-900)">Արագած 4090մ</text>
+        </g>
+        <g class="peak-marker">
+          <polygon points="400,298 410,321 390,321" fill="#fff" stroke="#7a4a24"/>
+          <text x="400" y="335" font-size="9" text-anchor="middle" fill="var(--brown-900)">Ազդահակ 3597մ</text>
+        </g>
+        <g class="peak-marker">
+          <polygon points="500,498 510,521 490,521" fill="#fff" stroke="#7a4a24"/>
+          <text x="500" y="535" font-size="9" text-anchor="middle" fill="var(--brown-900)">Կապուտջուղ 3904մ</text>
+        </g>
+
+        <!-- State border outline -->
+        <path d="M104,34 L131,18 L189,14 L252,27 L306,50 L351,63 L396,54 L432,90 L450,126 L459,180 L450,216 L468,243 L504,270 L531,306 L540,351 L549,396 L558,432 L545,468 L549,504 L531,540 L513,576 L486,608 L450,594 L423,567 L414,531 L387,495 L369,459 L342,423 L315,387 L279,360 L234,351 L189,356 L144,342 L99,333 L72,306 L54,261 L45,216 L54,171 L72,126 L81,81 Z"
+          fill="none" stroke="#c0392b" stroke-width="2.2" stroke-dasharray="6 3"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- REGIONS DETAIL -->
+<section id="regions">
+  <div class="section-title reveal">
+    <span class="eyebrow">Մանրամասն</span>
+    <h2>Լեռնագրական չորս մարզերը</h2>
+    <p>Ամբողջական տեքստը դասագրքից՝ §12 բաժնից։ Ընտրեք մարզը՝ ամբողջական նկարագրությունը կարդալու համար։</p>
+  </div>
+
+  <div class="tabs-nav reveal">
+    <div class="tab-btn active" onclick="openTab(event,'tab1')">I. Հյուսիսային մարզ</div>
+    <div class="tab-btn" onclick="openTab(event,'tab2')">II. Հրաբխային մարզ</div>
+    <div class="tab-btn" onclick="openTab(event,'tab3')">III. Հարավային մարզ</div>
+    <div class="tab-btn" onclick="openTab(event,'tab4')">IV. Միջինարաքսյան գոգավորություն</div>
+  </div>
+
+  <!-- TAB 1 -->
+  <div id="tab1" class="tab-panel active">
+    <div class="region-card">
+      <h3>Հյուսիսային ծալքաբեկորավոր լեռնաշղթաներ</h3>
+      <p>Փոքր Կովկասի հյուսիսային լեռնաշղթաները բաղկացած են երկու՝ արտաքին և ներքին շարքերից։ Արտաքին շարքին են պատկանում Վիրահայոց, Ջավախքի և Միափորի լեռնաշղթաները, որոնք միմյանցից բաժանված են Դեբեդ և Աղստև գետերի հովիտներով։</p>
+      <p>Ներքին շարքին են պատկանում Բագրումի, Շիրակի, Փամբակի և Ցաղկունյաց միջին բարձրության լեռնաշղթաները։ Բագրումի լեռնաշղթան հատվում է Փուշկինի լեռնանցքով, որը Փամբակ գետի հովիտը կապում է Լոռու հովտին։ Շիրակի լեռնաշղթան սկսվում է Ախուրյանի հովտից և ավարտվում Փամբակի վերին հոսանքի գետահովտով։ Ներքին շարքի լեռնաշղթաներից ամենաերկարը Փամբակի լեռնաշղթան է, որի ամենաբարձր գագաթը Թեժ լեռն է (3101 մ)։ Ցաղկունյաց լեռնաշղթայի Թեղենիս գագաթի հարևանությամբ է գտնվում Ցաղկածորի հանգստյան գոտին։</p>
+      <p>Հյուսիսային մարզում առանձնանում է Ջավախքի լեռների ստորոտում՝ հրաբխային լավաներով ծածկված Լոռու գոգավորությունը, որտեղով հոսում է Ձորագետը։ Իսկ լավաներով, տուֆերով ու ընդերային նստվածքներով ծածկված Շիրակի գոգավորությունը դեպի արևմուտք միանում է Կարսի սարահարթին։</p>
+      <div class="peak-tags">
+        <div class="peak-tag">🏔️ Թեժ <b>3101մ</b></div>
+        <div class="peak-tag">🏔️ Թեղենիս գագաթ</div>
+        <div class="peak-tag">💧 Դեբեդ գետ</div>
+        <div class="peak-tag">💧 Աղստև գետ</div>
+        <div class="peak-tag">🏞️ Լոռու գոգավորություն</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2 -->
+  <div id="tab2" class="tab-panel">
+    <div class="region-card">
+      <h3>Հրաբխային լեռնավահաններ և սարավանդներ</h3>
+      <p>ՀՀ-ում հրաբխային լեռնավահանների և սարավանդների մարզը զբաղեցնում է Հայկական հրաբխային բարձրավանդակի կենտրոնական մասի արևելյան հատվածը։ Այստեղ նշանավոր են Ջավախքի, Արագածի, Գեղամա, Վարդենիսի հրաբխային լեռները, Սյունիքի հրաբխային բարձրավանդակը և դրանց միջև ընկած լավային սարավանդները։</p>
+      <p><b>Արագած</b> լեռնազանգվածը լավաներով ծածկված հրաբխային գմբեթանման բարձրացում է, որի վրա ավելի ուշ ձևավորվել է հրաբխային կոն։ Հզոր պայթյունների հետևանքով հրաբխի մոտ 400 մ խորությամբ խառնարանը բաժանվել է ժայռային չորս գագաթների։ Արագածը հանրապետության ամենաբարձր լեռն է (<b>4090 մ</b>)։ Այն ճառագայթաձև մասնատված է հինգ հովիտներով (Ամբերդ, Մանթաշ և այլն), որոնցում պահպանվել են հնագույն սառցապատման հետքերը։</p>
+      <p>Սևանա լճի արևմտյան ափին, միջօրեականի ուղղությամբ, ձգվում են <b>Գեղամա</b> լեռները՝ հրաբխային կոներով, որոնցից ամենաբարձրը՝ հստակ արտահայտված խառնարանով Ազդահակ գագաթն է (3597 մ)։ <b>Վարդենիսի</b> լեռները եզերում են Սևանա լիճը հարավային մասից։</p>
+      <p><b>Սյունիքի</b> հրաբխային բարձրավանդակի ընդհանուր ցածրադիր հիմքի վրա բարձրանում են Ծղուկ (3581 մ) և Մեծ Իշխանասար (3549 մ) հրաբխային գագաթները։ Բարձրավանդակի մակերևույթն ամենուր ծածկված է երիտասարդ լավաներով։</p>
+      <div class="peak-tags">
+        <div class="peak-tag">🌋 Արագած <b>4090մ</b></div>
+        <div class="peak-tag">🌋 Ազդահակ <b>3597մ</b></div>
+        <div class="peak-tag">🌋 Ծղուկ <b>3581մ</b></div>
+        <div class="peak-tag">🌋 Մեծ Իշխանասար <b>3549մ</b></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3 -->
+  <div id="tab3" class="tab-panel">
+    <div class="region-card">
+      <h3>Հարավային ծալքաբեկորավոր լեռնաշղթաներ</h3>
+      <p>Փոքր Կովկասի հարավային ծալքաբեկորավոր լեռնաշղթաների մարզը զբաղեցնում է հանրապետության հարավ-արևելյան հատվածը և ներառում է Վայքի, Զանգեզուրի, Բարգուշատի և Մեղրու լեռնաշղթաները։ Այս մարզը աչքի է ընկնում խորը կիրճերով ու հովիտներով մասնատված կտրուկ լանջերով։</p>
+      <p><b>Զանգեզուրի լեռնաշղթան</b> հանրապետության ամենաերկար լեռնաշղթան է (շուրջ 100 կմ)՝ ձգվելով հյուսիս-արևմուտքից հարավ-արևելք։ Այն հանդիսանում է ջրբաժան Որոտան և Ողջի գետերի ավազանների միջև։ Լեռնաշղթայի ամենաբարձր գագաթը <b>Կապուտջուղն</b> է (3904 մ)՝ հանրապետության հարավային մասի ամենաբարձր կետը։</p>
+      <p><b>Վայքի լեռնաշղթան</b> գտնվում է Զանգեզուրի և Գեղամա լեռնային համակարգերի միջև՝ հանդիսանալով դրանք կապող բնական օղակը։ <b>Բարգուշատի լեռնաշղթան</b> ձգվում է Որոտան գետի հովտից հարավ՝ Ողջի գետի ավազանին զուգահեռ։</p>
+      <p><b>Մեղրու լեռնաշղթան</b> հանրապետության ամենահարավային լեռնաշղթան է, որն Արաքս գետի աջ ափով կազմում է բնական սահման Իրանի Իսլամական Հանրապետության հետ։ Հենց այստեղ են գտնվում հանրապետության ամենացածրադիր ու մեղմաթեք լեռնանցքերը, որոնցով դեռևս հնուց անցել են առևտրային ճանապարհներ։</p>
+      <p>Այս մարզի գետերը՝ Որոտանը, Ողջին և Մեղրի գետը, իրենց հոսանքներով գոյացրել են խորը և գեղատեսիլ կիրճեր, որոնցից առավել տպավորիչը <b>Որոտանի կիրճն</b> է՝ հայտնի իր եզակի բնապատկերներով և կախովի կամուրջներով։</p>
+      <div class="peak-tags">
+        <div class="peak-tag">🏔️ Կապուտջուղ <b>3904մ</b></div>
+        <div class="peak-tag">⛰️ Զանգեզուրի լեռնաշղթա</div>
+        <div class="peak-tag">⛰️ Բարգուշատի լեռնաշղթա</div>
+        <div class="peak-tag">🏞️ Որոտանի կիրճ</div>
+        <div class="peak-tag">💧 Ողջի գետ</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4 -->
+  <div id="tab4" class="tab-panel">
+    <div class="region-card">
+      <h3>Միջինարաքսյան գոգավորության մարզ (Արարատյան դաշտ)</h3>
+      <p>Միջինարաքսյան գոգավորությունը գտնվում է հանրապետության հարավային և հարավ-արևմտյան հատվածում՝ Արաքս գետի միջին հոսանքի շրջանում։ Սա հանրապետության ամենացածրադիր և հարթավայրային տարածքն է, որի բացարձակ բարձրությունը ծովի մակարդակից տատանվում է մոտավորապես 800–1000 մ սահմաններում։</p>
+      <p>Գոգավորության հիմնական և ամենամեծ հատվածը կազմում է <b>Արարատյան դաշտը</b>՝ ձևավորված գետային և հրաբխային նստվածքների երկարատև կուտակման հետևանքով։ Դաշտի հարավային եզրից, արդեն Թուրքիայի տարածքում, հոյակապ բարձրանում է Մասիս (Արարատ) լեռնազանգվածը (5165 մ)՝ տեսանելի հանրապետության գրեթե ողջ տարածքից և դարեր շարունակ հանդիսացող հայ ժողովրդի խորհրդանիշներից մեկը։</p>
+      <p>Իր հարթ մակերևույթի, արևոտ ու շոգ կլիմայի, ինչպես նաև Արաքս և Հրազդան գետերի ու ստորերկրյա ջրային ռեսուրսների առատության շնորհիվ Արարատյան դաշտը հանրապետության ամենաբերրի և ագրարային առումով ամենազարգացած շրջանն է, որտեղ մշակվում են խաղող, ծիրան, դեղձ, բանջարանոցային և բամբակատեխնիկական մշակաբույսեր։</p>
+      <p>Հենց այս գոգավորության տարածքում են գտնվում հանրապետության ամենախոշոր քաղաքային կենտրոնները՝ Երևանը, Արտաշատը, Արմավիրը և Վաղարշապատը, ինչը պայմանավորված է բարենպաստ բնակլիմայական և տրանսպորտային-աշխարհագրական դիրքով։</p>
+      <div class="peak-tags">
+        <div class="peak-tag">🏔️ Մասիս (Արարատ) <b>5165մ</b></div>
+        <div class="peak-tag">💧 Արաքս գետ</div>
+        <div class="peak-tag">💧 Հրազդան գետ</div>
+        <div class="peak-tag">🏙️ Երևան</div>
+        <div class="peak-tag">🍇 Ամենաբերրի գոտի</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FACTS -->
+<section id="facts" style="background:linear-gradient(180deg,#fbeedb,#fff);">
+  <div class="section-title reveal">
+    <span class="eyebrow">Գիտե՞ք արդյոք</span>
+    <h2>Հետաքրքիր փաստեր</h2>
+    <p>Սավառնեք քարտի վրա՝ հետին կողմում թաքնված հետաքրքրաշարժ տեղեկությունը կարդալու համար։</p>
+  </div>
+  <div class="facts-grid">
+    <div class="flip-card reveal">
+      <div class="flip-inner">
+        <div class="flip-front">
+          <div class="flip-icon">🌋</div>
+          <h3>Արագած՝ հանգած հրաբուխ</h3>
+          <p>Ինչպե՞ս է ձևավորվել ՀՀ ամենաբարձր լեռը</p>
+        </div>
+        <div class="flip-back">
+          <p>Արագածը գմբեթաձև հրաբխային զանգված է, որի գագաթային մասում հզոր պայթյունների հետևանքով առաջացել է շուրջ 400 մ խորությամբ խառնարան՝ բաժանված չորս գագաթների (Հյուսիսային՝ 4090 մ, Արևմտյան, Արևելյան և Հարավային)։ Լեռան լանջերին պահպանվել են հնագույն սառցապատման հետքեր։</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flip-card reveal">
+      <div class="flip-inner">
+        <div class="flip-front">
+          <div class="flip-icon">💧</div>
+          <h3>Սևանա լիճ</h3>
+          <p>Կովկասի ամենամեծ լիճը</p>
+        </div>
+        <div class="flip-back">
+          <p>Գտնվելով ծովի մակարդակից շուրջ 1900 մ բարձրության վրա՝ Սևանա լիճը Կովկասի ամենամեծ լճերից է և կարևոր դեր է խաղում տարածաշրջանի կլիման մեղմացնելու և ոռոգման ջրով ապահովելու գործում։</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flip-card reveal">
+      <div class="flip-inner">
+        <div class="flip-front">
+          <div class="flip-icon">🏞️</div>
+          <h3>Որոտանի կիրճ</h3>
+          <p>Բնության հրաշալիքներից մեկը</p>
+        </div>
+        <div class="flip-back">
+          <p>Որոտան գետը Սյունիքի տարածքում գոյացրել է տպավորիչ խորությամբ կիրճ՝ ուղեկցվող եզակի ժայռային գոյացություններով, ջրվեժներով և կախովի կամրջով, որը դարձել է զբոսաշրջության կարևոր օբյեկտ։</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flip-card reveal">
+      <div class="flip-inner">
+        <div class="flip-front">
+          <div class="flip-icon">⚠️</div>
+          <h3>Սեյսմիկ ակտիվություն</h3>
+          <p>Ինչու՞ է Հայաստանը սողանքավտանգ գոտի</p>
+        </div>
+        <div class="flip-back">
+          <p>Հայկական լեռնաշխարհը գտնվում է Ալպ-Հիմալայան ակտիվ սեյսմիկ գոտում, որտեղ Արաբական և Եվրասիական սալերի բախման հետևանքով տեղի են ունենում հաճախակի երկրաշարժեր, իսկ մակերևույթը շարունակում է ձևավորվել մինչ օրս։</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flip-card reveal">
+      <div class="flip-inner">
+        <div class="flip-front">
+          <div class="flip-icon">⛰️</div>
+          <h3>Մասիս՝ տեսանելի, բայց հեռու</h3>
+          <p>Խորհրդանիշ՝ սահմանից այն կողմ</p>
+        </div>
+        <div class="flip-back">
+          <p>Չնայած Մասիս (Արարատ) լեռը ներկայումս գտնվում է Թուրքիայի տարածքում, այն հստակորեն երևում է Հայաստանի մեծ մասից, հատկապես Արարատյան դաշտից, և մնում է հայ ժողովրդի ազգային խորհրդանիշներից։</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flip-card reveal">
+      <div class="flip-inner">
+        <div class="flip-front">
+          <div class="flip-icon">📊</div>
+          <h3>Եվրոպայի ամենաբարձր երկրներից</h3>
+          <p>Միջին բարձրությունների համեմատություն</p>
+        </div>
+        <div class="flip-back">
+          <p>Հայաստանի միջին բարձրությունը (1800 մ) զգալիորեն գերազանցում է Եվրոպայի միջին ցուցանիշը (300 մ)՝ դարձնելով երկիրը տարածաշրջանի ամենաբարձրադիր և ամենալեռնային երկրներից մեկը։</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TASKS -->
+<section id="tasks">
+  <div class="section-title reveal">
+    <span class="eyebrow">Ինքնստուգում</span>
+    <h2>Առաջադրանքներ</h2>
+    <p>Սեղմեք առաջադրանքի վրա՝ այն «կատարված» նշելու համար։</p>
+  </div>
+  <div class="task-list">
+    <div class="task-item reveal" onclick="this.classList.toggle('done')">
+      <div class="checkbox"></div>
+      <p>Քարտեզի վրա ցույց տվեք ՀՀ չորս լեռնագրական մարզերը և նկարագրեք դրանց սահմանները։</p>
+    </div>
+    <div class="task-item reveal" onclick="this.classList.toggle('done')">
+      <div class="checkbox"></div>
+      <p>Համեմատեք Արագած, Ազդահակ և Կապուտջուղ գագաթների բարձրությունները և նշեք՝ որ լեռնագրական մարզին են պատկանում։</p>
+    </div>
+    <div class="task-item reveal" onclick="this.classList.toggle('done')">
+      <div class="checkbox"></div>
+      <p>Բացատրեք, թե ինչու է Արարատյան դաշտը հանրապետության ամենախիտ բնակեցված և ագրարային առումով կարևոր տարածքը։</p>
+    </div>
+    <div class="task-item reveal" onclick="this.classList.toggle('done')">
+      <div class="checkbox"></div>
+      <p>Հաշվեք հանրապետության ամենաբարձր և ամենացածր կետերի բացարձակ բարձրությունների տարբերությունը։</p>
+    </div>
+    <div class="task-item reveal" onclick="this.classList.toggle('done')">
+      <div class="checkbox"></div>
+      <p>Թվարկեք հյուսիսային մարզի արտաքին և ներքին շարքի լեռնաշղթաները՝ հիշելով նրանց միջև ընկած գետահովիտները։</p>
+    </div>
+    <div class="task-item reveal" onclick="this.classList.toggle('done')">
+      <div class="checkbox"></div>
+      <p>Բացատրեք «լեռնագրական մարզ», «սարավանդ» և «լեռնավահան» հասկացությունների տարբերությունը (տե՛ս Հավելված)։</p>
+    </div>
+  </div>
+</section>
+
+<!-- APPENDIX -->
+<section id="appendix" style="background:linear-gradient(180deg,#fff,#fbeedb);">
+  <div class="section-title reveal">
+    <span class="eyebrow">Հավելված</span>
+    <h2>Հասկացություններ և եզրույթներ</h2>
+    <p>Սեղմեք վերնագրի վրա՝ սահմանումը բացելու համար։</p>
+  </div>
+  <div class="accordion reveal">
+    <div class="acc-item">
+      <div class="acc-head" onclick="toggleAcc(this)">Լեռնագրական մարզ <span class="plus">+</span></div>
+      <div class="acc-body"><p>Ընդհանուր երկրաբանական ծագում և կառուցվածք ունեցող, միմյանց հարակից լեռնային ու գոգավորային տարածքների համախումբ, որը դուրս է բերվում ըստ մակերևույթի ընդհանուր հատկանիշների։</p></div>
+    </div>
+    <div class="acc-item">
+      <div class="acc-head" onclick="toggleAcc(this)">Սարավանդ (բարձրավանդակ) <span class="plus">+</span></div>
+      <div class="acc-body"><p>Համեմատաբար հարթ կամ թեթևակի ալիքավոր մակերևույթ ունեցող, շրջակա տարածքներից զգալիորեն բարձր գտնվող տարածք, որը հաճախ ձևավորվել է հրաբխային լավայաշերտերի կուտակման հետևանքով։</p></div>
+    </div>
+    <div class="acc-item">
+      <div class="acc-head" onclick="toggleAcc(this)">Լեռնավահան <span class="plus">+</span></div>
+      <div class="acc-body"><p>Հրաբխային ծագման լայն, մեղմաթեք լանջերով լեռնային զանգված, որը ձևավորվում է բազմաթիվ ժայթքումների արդյունքում կուտակված լավայի շերտերից՝ ստանալով գմբեթանման տեսք (օրինակ՝ Արագած)։</p></div>
+    </div>
+    <div class="acc-item">
+      <div class="acc-head" onclick="toggleAcc(this)">Միջլեռնային գոգավորություն <span class="plus">+</span></div>
+      <div class="acc-body"><p>Երկու կամ ավելի լեռնաշղթաների միջև ընկած, համեմատաբար ցածրադիր տարածք, որը սովորաբար լցված է գետային, լճային կամ հրաբխային նստվածքներով (օրինակ՝ Լոռու, Շիրակի գոգավորությունները)։</p></div>
+    </div>
+    <div class="acc-item">
+      <div class="acc-head" onclick="toggleAcc(this)">Ծալքաբեկորավոր լեռներ <span class="plus">+</span></div>
+      <div class="acc-body"><p>Լեռնային համակարգեր, որոնք ձևավորվել են երկրակեղևի շերտերի ծալքավորման և միաժամանակ բեկորավոր տեղաշարժերի համակցված ազդեցության հետևանքով՝ բնորոշ Փոքր Կովկասի հյուսիսային և հարավային լեռնաշղթաներին։</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <h3>🏔️ Հայաստանի Աշխարհագրություն</h3>
+  <p style="max-width:600px; margin:0 auto; opacity:.85;">Ինտերակտիվ ուսումնական նյութ՝ պատրաստված §12 «Հայաստանի Հանրապետության մակերևույթը» թեմայի հիման վրա, 9-րդ դասարանի աշխարհագրության դասընթացի համար։</p>
+  <nav style="margin-top:26px;">
+    <ul style="display:flex; gap:22px; justify-content:center; flex-wrap:wrap;">
+      <li><a href="#hero">Գլխավոր</a></li>
+      <li><a href="#overview">Մակերևույթը</a></li>
+      <li><a href="#map">Քարտեզ</a></li>
+      <li><a href="#regions">Մարզեր</a></li>
+      <li><a href="#facts">Փաստեր</a></li>
+      <li><a href="#tasks">Առաջադրանքներ</a></li>
+    </ul>
+  </nav>
+  <p>© Ուսումնական նյութ · Պատրաստված ուսումնական նպատակով</p>
+</footer>
+
+<div id="toTop" onclick="window.scrollTo({top:0, behavior:'smooth'})">↑</div>
+
+<script>
+  /* ---------- progress bar + header shrink + toTop ---------- */
+  const progressBar = document.getElementById('progress-bar');
+  const header = document.getElementById('header');
+  const toTopBtn = document.getElementById('toTop');
+
+  window.addEventListener('scroll', () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const scrolled = (scrollTop / docHeight) * 100;
+    progressBar.style.width = scrolled + '%';
+
+    header.classList.toggle('scrolled', scrollTop > 60);
+    toTopBtn.classList.toggle('show', scrollTop > 500);
+  });
+
+  /* ---------- reveal on scroll ---------- */
+  const revealEls = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('show');
+      }
+    });
+  }, {threshold:0.15});
+  revealEls.forEach(el => revealObserver.observe(el));
+
+  /* ---------- animated counters ---------- */
+  const counters = document.querySelectorAll('[data-count]');
+  const counterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting && !entry.target.dataset.done){
+        entry.target.dataset.done = "true";
+        const target = parseInt(entry.target.getAttribute('data-count'), 10);
+        let current = 0;
+        const duration = 1400;
+        const increment = Math.ceil(target / (duration / 16));
+        const update = () => {
+          current += increment;
+          if(current >= target){
+            entry.target.textContent = target;
+          } else {
+            entry.target.textContent = current;
+            requestAnimationFrame(update);
+          }
+        };
+        update();
+      }
+    });
+  }, {threshold:0.4});
+  counters.forEach(c => counterObserver.observe(c));
+
+  /* ---------- tabs ---------- */
+  function openTab(evt, tabId){
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    evt.currentTarget.classList.add('active');
+  }
+
+  /* ---------- accordion ---------- */
+  function toggleAcc(headEl){
+    const item = headEl.parentElement;
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+    if(!wasOpen){ item.classList.add('open'); }
+  }
+
+  /* ---------- map region selection ---------- */
+  function selectRegion(region){
+    document.querySelectorAll('.legend-item').forEach(li => {
+      li.classList.toggle('active', li.dataset.region === region);
+    });
+
+    const allRegionIds = ['I','II','III','IV'];
+    allRegionIds.forEach(id => {
+      const path = document.getElementById('region-' + id);
+      if(!path) return;
+      if(id === region){
+        path.style.filter = 'drop-shadow(0 0 10px rgba(192,98,44,0.8))';
+        path.style.opacity = '1';
+        path.setAttribute('transform','scale(1.015)');
+      } else {
+        path.style.filter = 'none';
+        path.style.opacity = '0.55';
+        path.removeAttribute('transform');
+      }
+    });
+
+    const tabMap = {I:'tab1', II:'tab2', III:'tab3', IV:'tab4'};
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabIndexMap = {I:0, II:1, III:2, IV:3};
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    tabButtons.forEach(b => b.classList.remove('active'));
+    document.getElementById(tabMap[region]).classList.add('active');
+    tabButtons[tabIndexMap[region]].classList.add('active');
+
+    document.getElementById('regions').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  /* ---------- mobile nav close on link click ---------- */
+  document.querySelectorAll('nav a').forEach(link => {
+    link.addEventListener('click', () => {
+      document.querySelector('nav').classList.remove('mobile-open');
+    });
+  });
+</script>
+
+</body>
+</html>
+
